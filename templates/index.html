@@ -10,7 +10,7 @@
 
     <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script> -->
     <!-- <script type="text/javascript" src="http://myapp.herokuapp.com/socket.io/socket.io.js"></script> -->
-    <!-- <script src="https://cherry-surprise-78840.herokuapp.com/socket.io/socket.io.js"></script> -->
+    <!-- <script src="https://warm-badlands-36214.herokuapp.com/socket.io/socket.io.js"></script> -->
     <script
       src="https://cdn.socket.io/3.1.3/socket.io.min.js"
       integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh"
@@ -126,7 +126,7 @@
         console.log(id, "here");
         $.ajax({
           type: "POST",
-          url: "https://cherry-surprise-78840.herokuapp.com/satisfycount/",
+          url: "https://warm-badlands-36214.herokuapp.com/satisfycount/",
           data: {
             flag: "satisfied",
             qid: id,
@@ -146,7 +146,7 @@
         $.ajax({
           type: "POST",
           // url: "http://localhost:3000/satisfycount/",
-          url: "https://cherry-surprise-78840.herokuapp.com/satisfycount/",
+          url: "https://warm-badlands-36214.herokuapp.com/satisfycount/",
           data: {
             flag: "unsatisfied",
             qid: splitData[0],
