@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Socket.IO chat</title>
+    <link rel="icon" href="data:," />
+    <link rel="shortcut icon" href="" />
+
+    <!-- <link rel="shortcut icon" type="image/ico" href="./favicon.jpg"> -->
+
+    <!-- <script src="http://localhost:3000/socket.io/socket.io.js"></script> -->
+    <!-- <script type="text/javascript" src="http://myapp.herokuapp.com/socket.io/socket.io.js"></script> -->
+    <!-- <script src="https://cherry-surprise-78840.herokuapp.com/socket.io/socket.io.js"></script> -->
+    <script
+      src="https://cdn.socket.io/3.1.3/socket.io.min.js"
+      integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script> -->
+    <!-- <script src="/socket.io/socket.io.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="upgrade-insecure-requests"
+    />
+    <!-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+    <!-- <link rel="stylesheet" type="text/css" href="../static/styles.css" /> -->
+    <link rel="stylesheet" type="text/css" href="/static/css/styles.css" />
+
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="https://use.typekit.net/hoy3lrg.js"></script>
+    <!-- <script>try{Typekit.load({ async: true });}catch(e){}</script> -->
+    <link
+      rel="stylesheet prefetch"
+      href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css"
+    />
+    <link
+      rel="stylesheet prefetch"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css"
+    />
+    <link
+      href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      rel="stylesheet"
+      id="bootstrap-css"
+    />
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link
+      href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"
+      rel="stylesheet"
+      id="bootstrap-css"
+    />
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+    <script>
+      $(function () {
+        try {
+          var socket = io.connect(window.location.origin);
+
+          $("form").submit(function () {
+            let msg = $("#userMsg").val();
+            $(
+              '<li class="replies" ><img src="/static/images/human_icon.png" alt="" /><p> ' +
+                msg +
+                " </p></li>"
+            ).appendTo($(".messages ul"));
+
+            // $(".messages ul").append(
+            //   $(
+            //     '<li class="replies"><img src="{% static "assets/human_icon.png" %}" alt="" /><p> ' +
+            //       msg +
+            //       " </p></li>"
+            //   ).text($("#userMsg").val())
+            // );
+            //
+            // $("#usermessage").append($("<li>").text($("#userMsg").val()));
+            let data = {
+              userMsg: msg,
+              flag: "0",
+            };
+            socket.emit("chat message", data);
+            $("#userMsg").val("");
+            return false;
+          });
+          socket.on("chat message", function (botMsg) {
+            //          const responseData = JSON.parse(botMsg);
+            console.log(botMsg);
+            $(
+              '<li class="sent"><img src="/static/images/chatbot_icon.jpg" alt="" /><p>' +
+                botMsg.answer +
+                ' </p>\
+            <br><button name="' +
+                botMsg.id +
+                '" onclick="satisfiedFunction(this.name)"> Satisfied</button>\
+            <button id="' +
+                botMsg.id +
+                '" name="' +
+                botMsg.id +
+                ":" +
+                botMsg.userQ +
+                '" onclick="unsatisfiedFunction(this.name,this)"> Unsatisfied</button><div id="Div' +
+                botMsg.id +
+                '" ></div></li>'
+            ).appendTo($(".messages ul"));
+
+            // $("#botmessages").append($("<li>").text(botMsg.answer));
+          });
+          socket.on("connect_error", function (err) {
+            // handle server error here
+            $(
+              '<li class="sent"><img src="/static/images/chatbot_icon.jpg" alt="" /><p> Lost Connection. Refresh to connect again.</p></li>'
+            ).appendTo($(".messages ul"));
+          });
+        } catch (e) {
+          console.log(e);
+        }
+      });
+
+      function satisfiedFunction(id) {
+        console.log(id, "here");
+        $.ajax({
+          type: "POST",
+          url: "https://cherry-surprise-78840.herokuapp.com/satisfycount/",
+          data: {
+            flag: "satisfied",
+            qid: id,
+          },
+          success: function (data) {},
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Failure: " + errorThrown);
+          },
+        });
+      }
+      function unsatisfiedFunction(name, ele) {
+        let splitData = name.split(":");
+        console.log(splitData);
+        console.log(ele.parentNode);
+        var divEle = $(ele.parentNode).find("div");
+        console.log(divEle[0]);
+        $.ajax({
+          type: "POST",
+          // url: "http://localhost:3000/satisfycount/",
+          url: "https://cherry-surprise-78840.herokuapp.com/satisfycount/",
+          data: {
+            flag: "unsatisfied",
+            qid: splitData[0],
+            userQ: splitData[1],
+          },
+          success: function (data) {},
+          error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("Failure: " + errorThrown);
+          },
+        });
+
+        $(divEle[0]).append(
+          '<div class="contactDiv"><b>Contact Us : 7986541230<br/><a href="https://pict.edu/about-us/contact-us/">PICT Contact Us</a><b></div>'
+        );
+      }
+    </script>
+  </head>
+  <body>
+    <div id="frame">
+      <div class="content">
+        <div class="contact-profile">
+          <img src="/static/images/chatbot_icon.jpg" alt="" />
+          <p>PICT BOT</p>
+        </div>
+        <div class="messages">
+          <ul id="chat-log">
+            <li class="sent">
+              <img src="/static/images/chatbot_icon.jpg" alt="" />
+              <p>Hi!! I am Bot. How may I help You?</p>
+              <br />
+            </li>
+            <!-- <!-- <li class="replies"></li>  -->
+          </ul>
+        </div>
+        <div class="message-input">
+          <!-- <!-- <input
+          type="text"
+          id="chat-message-input"
+          placeholder="Type your question here...."
+        />  -->
+          <form action="">
+            <input
+              id="userMsg"
+              placeholder="Type your question here...."
+              autocomplete="off"
+            />
+            <!-- <!-- <button>Send</button>  -->
+            <button class="submit" id="chat-message-submit">
+              <i class="fa fa-paper-plane" aria-hidden="true"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+<!-- <img id="likedBtn" src="/static/images/like_icon.png" alt="" /> -->
